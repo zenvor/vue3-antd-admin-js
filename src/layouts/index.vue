@@ -69,7 +69,7 @@
             <div class="global-header-logo">
               <a>
                 <img src="/src/assets/logo.svg" alt="logo" class="logo-img" />
-                <h1 class="logo-text">后台管理模板</h1>
+                <h1 class="logo-text">Vue3 Antd Admin JS</h1>
               </a>
             </div>
 
