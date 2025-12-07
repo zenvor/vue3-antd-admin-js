@@ -1,0 +1,102 @@
+---
+description: 表单数据管理最佳实践 - 工厂函数模式
+globs: *.vue
+alwaysApply: false
+---
+
+## 1. 创建初始表单数据的工厂函数
+
+使用 `createInitialXxxFormData()` 工厂函数返回表单初始状态，仅包含业务字段，排除系统字段（如 `id`、`created_at` 等）
+
+```javascript
+const createInitialPackageFormData = () => ({
+  package_name: '',
+  device_type: undefined,
+  version: '',
+  description: '',
+  package_url: '',
+  file_size: 0
+})
+```
+
+## 2. 创建响应式表单数据
+
+使用 `ref(createInitialXxxFormData())` 创建响应式表单数据，确保初始化语义明确
+
+```javascript
+const formData = ref(createInitialPackageFormData())
+```
+
+## 3. reset() 函数规范
+
+**强制要求**：所有包含表单组件的组件都必须实现 `reset()` 函数。
+
+**reset() 函数职责**：统一处理表单重置逻辑，包括但不限于以下内容（根据实际情况选择）：
+
+- 重置表单数据到初始状态
+- 清空验证状态
+- 清空关联状态（如文件列表、预览数据等）
+
+```javascript
+// 统一的 reset 函数 - 处理所有需要重置的状态
+const reset = () => {
+  // 1. 重置表单数据
+  formData.value = createInitialPackageFormData()
+  // 2. 清空关联状态
+  fileList.value = []
+  // 3. 清空验证状态
+  formRef.value?.clearValidate()
+}
+
+// 取消操作时直接调用 reset
+const cancel = () => {
+  visible.value = false
+  reset()
+}
+```
+
+## 4. 编辑数据加载
+
+使用直接对象赋值方式合并编辑数据至表单中，仅包含业务字段，避免额外系统字段污染
+
+```javascript
+const setEditData = (record) => {
+  formData.value = {
+    id: record.id,
+    package_name: record.package_name,
+    device_type: record.device_type,
+    version: record.version,
+    description: record.description,
+    package_url: record.package_url,
+    file_size: record.file_size
+  }
+}
+```
+
+## 5. 保持数据职责清晰
+
+父组件管理表单状态和逻辑，子组件专注交互与验证
+
+```javascript
+// 父组件 - 仅管理弹框状态
+const modalVisible = ref(false)
+const handleAdd = () => {
+  modalVisible.value = true
+}
+const handleUpdate = (record) => {
+  packageFormModalRef.value?.setEditData(record)
+  modalVisible.value = true
+}
+
+// 子组件 - 专注表单逻辑
+const submitForm = async () => {
+  await formRef.value.validate()
+  // 提交逻辑
+  visible.value = false
+  emit('success')
+}
+```
+
+## 优势总结
+
+清晰语义、避免数据污染、业务字段与系统字段解耦、提升新增流程的安全性和可控性

@@ -1,0 +1,53 @@
+---
+description: Vue 组件模式与组合式 API 最佳实践
+globs: *.vue
+alwaysApply: false
+---
+
+## 组件结构组织
+
+- **`src/views`**: 页面级组件，与路由绑定
+- **`src/components`**: 原子级、可高度复用的基础组件
+- **`views/*/components`**: 仅在该业务模块内部复用的组件
+
+## 组合式 API 规范
+
+- 使用 `<script setup>` 语法
+- 为 props 声明类型与默认值，禁止在子组件中直接修改 props
+- 通过 `emits` 显式声明组件事件
+- 使用 Vue 3.4+ 的 `defineModel` API 实现双向数据绑定
+- 使用 `computed` 管理派生状态，`watch` 处理副作用
+
+### Composables 使用原则
+
+- 仅在以下两种场景下使用 Composables：
+  - 需要在多个组件中复用状态化逻辑（如 ref、computed）
+  - 当前组件逻辑复杂、结构混乱，需要功能性拆分
+- 避免将简单、仅限当前组件的逻辑提取为 Composables（避免过度设计）
+
+## 响应式状态管理（强制规范）
+
+- **统一使用 `ref`**，禁止使用 `reactive`（防止混用导致混淆）
+- 使用 `storeToRefs()` 解构 Pinia store：`const { venueList } = storeToRefs(venueStore)`，避免直接解构或使用 `computed(() => store.xxx)`
+
+## 深层组件通信
+
+- 谨慎使用 provide/inject 进行深层组件通信
+  - 适用：组件库封装、全局配置（如主题、语言、权限）
+  - 慎用：普通业务逻辑中，易造成数据来源不清、依赖隐蔽
+  - 提示：默认非响应式，需搭配 ref 使用
+
+## 生命周期与数据请求
+
+- 避免在 `onMounted` 中发起数据请求；应在 `setup` 中直接完成
+
+## Props 处理最佳实践
+
+- 将 props 视为不可变；如需更改，通过事件通知父组件
+- 必要时在子组件中用 `ref` / `computed` 创建本地副本
+- 当 props 是对象或数组时，警惕嵌套属性变更带来的副作用；必要时深拷贝或拆分局部状态
+
+## 注释规范
+
+- 避免装饰性注释，统一简洁风格（如 `// 组件状态`）
+- 为主要业务函数添加 `/** 操作说明 */` 注释

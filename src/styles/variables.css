@@ -1,0 +1,6 @@
+/* variables.css */
+:root {
+  --font-base: system-ui, sans-serif;
+  --color-bg: #f4f8fb;
+  --color-text: #374348;
+}

@@ -1,0 +1,16 @@
+/* 工具类样式 */
+
+/* 禁用文本选择 */
+.user-select-none {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.iconify-align {
+  vertical-align: -0.125em;
+  display: inline-block;
+  font-size: 1em;
+  line-height: 1;
+}
